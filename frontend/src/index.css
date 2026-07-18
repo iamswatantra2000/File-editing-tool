@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-stone-950 text-stone-100 font-montserrat antialiased;
+  }
+}
+
+@layer utilities {
+  .spinner {
+    @apply inline-block w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin;
+  }
+}

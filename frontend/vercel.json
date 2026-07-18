@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://file-editing-tool-production.up.railway.app/api/:path*"
+    }
+  ]
+}

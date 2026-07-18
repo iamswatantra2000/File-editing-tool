@@ -5,7 +5,8 @@ CLAUDE.md
 .env
 .env.local
 .env.*.local
-.env.example          # contains real API key — keep off GitHub
+# .env.example contains real API key — keep off GitHub
+.env.example
 
 # ─── Python ──────────────────────────────────────────────────────────────────
 __pycache__/

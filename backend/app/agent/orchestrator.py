@@ -129,8 +129,8 @@ def _real_loop(
 # Mock loop (offline / no API key)
 # ---------------------------------------------------------------------------
 
-_PIE_CHART_KEYWORDS = {"pie", "chart", "revenue", "donut"}
-_BAR_CHART_KEYWORDS = {"bar", "chart", "histogram"}
+_PIE_CHART_KEYWORDS = {"pie", "donut"}
+_BAR_CHART_KEYWORDS = {"bar", "histogram", "column"}
 
 
 def _parse_pie_data(prompt: str) -> Tuple[List[str], List[float]]:
@@ -167,43 +167,30 @@ def _mock_loop(
         if on_change:
             on_change(tool_name, description)
 
-    # --- pie / bar chart into docx -------------------------------------------
-    if session.ext == ".docx" and _PIE_CHART_KEYWORDS & set(lower.split()):
-        # Find first heading to use as anchor
+    # --- bar / pie chart into docx (bar checked first to avoid pie swallowing it)
+    import re
+    words = set(lower.split())
+    is_bar = bool(_BAR_CHART_KEYWORDS & words)
+    is_pie = bool(_PIE_CHART_KEYWORDS & words) or ("pie" in lower)
+
+    if session.ext == ".docx" and (is_bar or is_pie):
         anchor = (
             outline["headings"][0]["text"]
             if outline.get("headings")
             else (outline["paragraphs"][0] if outline.get("paragraphs") else "Introduction")
         )
         labels, values = _parse_pie_data(prompt)
-
-        import re
         title_match = re.search(r'titled?\s+"([^"]+)"', prompt, re.IGNORECASE)
-        title = title_match.group(1) if title_match else "Chart"
+        title = title_match.group(1) if title_match else ("Bar Chart" if is_bar else "Chart")
+        chart_type = "bar" if is_bar else "pie"
 
         _run("insert_chart", {
             "anchor_text": anchor,
-            "chart_type": "pie",
+            "chart_type": chart_type,
             "title": title,
             "labels": labels,
             "values": values,
             "caption": title,
-        })
-        return changes
-
-    if session.ext == ".docx" and _BAR_CHART_KEYWORDS & set(lower.split()):
-        anchor = (
-            outline["headings"][0]["text"]
-            if outline.get("headings")
-            else (outline["paragraphs"][0] if outline.get("paragraphs") else "Introduction")
-        )
-        labels, values = _parse_pie_data(prompt)
-        _run("insert_chart", {
-            "anchor_text": anchor,
-            "chart_type": "bar",
-            "title": "Chart",
-            "labels": labels,
-            "values": values,
         })
         return changes
 
